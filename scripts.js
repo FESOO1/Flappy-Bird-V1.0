@@ -2,6 +2,7 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 canvas.setAttribute('width', '500px');
 canvas.setAttribute('height', (window.innerHeight - 1) + 'px');
+let height = '729px';
 
 // GAME
 let isGameStarted = false;
@@ -17,8 +18,8 @@ let baseMoveSpeed = 1;
 let birdWidth = 55, birdHeight = 40;
 let birdX = (canvas.width - birdWidth) / 2, birdY = (canvas.height - birdHeight) / 2;
 let isSpacePressed = false;
+let isJumpable = false;
 let birdImageState = 0;
-// BIRD ANIMATION
 let birdVelocity = 0;
 let gravity = 0.1;
 let jump = -4;
@@ -49,7 +50,7 @@ const pipePositions = [
     },
 ];
 let randomPipePosition = randomPipeFnc();
-const pipes = [{ topPipe: { x: canvas.width, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width, y: pipePositions[randomPipePosition].bottomY } }];
+const pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY } }];
 
 
 // RANDOM PIPE FUNCTION
@@ -70,12 +71,13 @@ function detectCollision() {
         
         // TOP
         if (topPipe.x - birdWidth < birdX && topPipe.x + birdWidth > birdX && topY > birdY) {
+            baseMoveSpeed = 0;
             isGameStarted = false;
         };
         
         // BOTTOM
         if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + birdWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
-            console.log(bottomY, birdY + (birdHeight / 2));
+            baseMoveSpeed = 0;
             isGameStarted = false;
         };
     };
@@ -188,7 +190,7 @@ function draw() {
     detectCollision();
 
     // BIRD ANIMATION
-    if (isGameStarted) {
+    if (isGameStarted || isJumpable) {
         birdVelocity += gravity;
         birdY += birdVelocity;
     };
@@ -218,5 +220,6 @@ function handleKeyDown(e) {
 document.addEventListener('click', () => {
     if (!isGameStarted) {
         isGameStarted = true;
+        isJumpable = true;
     };
 });
