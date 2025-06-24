@@ -205,7 +205,6 @@ draw();
 
 function birdJump() {
     birdVelocity = jump;
-    console.log(true);
 };
 
 // HANDLE SOUND
