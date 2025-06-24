@@ -1,8 +1,8 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 canvas.setAttribute('width', '500px');
-canvas.setAttribute('height', (window.innerHeight - 1) + 'px');
-let height = '729px';
+canvas.setAttribute('height', '729px');
+let height = (window.innerHeight - 1);
 
 // GAME
 let isGameStarted = false;
