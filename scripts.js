@@ -82,7 +82,7 @@ function detectCollision() {
         };
 
         // BASE
-        if (birdY > visibleBaseY) {
+        if (birdY > visibleBaseY - birdHeight) {
             jump = 0;
             baseMoveSpeed = 0;
             isGameStarted = false;
