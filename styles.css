@@ -5,6 +5,7 @@
 }
 
 body {
+    padding-block: 10px;
     min-height: 100vh;
     background-color: rgb(25,25,25);
     display: flex;
