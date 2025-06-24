@@ -208,6 +208,14 @@ function birdJump() {
     console.log(true);
 };
 
+// HANDLE SOUND
+
+function handleSound(src) {
+    const audio = document.createElement('audio');
+    audio.src = src;
+    audio.play();
+};
+
 // HANDLE KEYS
 document.addEventListener('keydown', handleKeyDown);
 document.addEventListener('click', birdJump);
