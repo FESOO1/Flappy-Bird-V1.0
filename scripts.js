@@ -4,7 +4,7 @@ canvas.setAttribute('width', '500px');
 canvas.setAttribute('height', (window.innerHeight - 1) + 'px');
 
 // GAME
-let isPlaying = true;
+let isGameStarted = false;
 
 // BASE
 let baseWidth = canvas.width;
@@ -51,10 +51,34 @@ const pipePositions = [
 let randomPipePosition = randomPipeFnc();
 const pipes = [{ topPipe: { x: canvas.width, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width, y: pipePositions[randomPipePosition].bottomY } }];
 
+
 // RANDOM PIPE FUNCTION
 
 function randomPipeFnc() {
     return Math.floor(Math.random() * pipePositions.length);
+};
+
+// DETECT COLLISION
+
+function detectCollision() {
+    for (let i = 0; i < pipes.length; i++) {
+        const topPipe = pipes[i].topPipe;
+        const topY = -(-pipes[i].topPipe.y - pipeHeight);
+        const bottomPipe = pipes[i].bottomPipe;
+        const bottomY = pipes[i].bottomPipe.y - (birdHeight / 2);
+
+        
+        // TOP
+        if (topPipe.x - birdWidth < birdX && topPipe.x + birdWidth > birdX && topY > birdY) {
+            isGameStarted = false;
+        };
+        
+        // BOTTOM
+        if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + birdWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
+            console.log(bottomY, birdY + (birdHeight / 2));
+            isGameStarted = false;
+        };
+    };
 };
 
 // DRAW PIPES
@@ -74,7 +98,7 @@ function drawPipes() {
         ctx.drawImage(pipeBottomImage, bottomPipe.x, bottomPipe.y, pipeWidth, pipeHeight);
         ctx.closePath();
 
-        if (isPlaying) {
+        if (isGameStarted) {
             // PIPES MOVEMENT
             pipes[i].topPipe.x -= pipeMoveSpeed;
             pipes[i].bottomPipe.x -= pipeMoveSpeed;
@@ -161,10 +185,13 @@ function draw() {
     drawPipes();
     drawBase();
     drawBird();
+    detectCollision();
 
     // BIRD ANIMATION
-    birdVelocity += gravity;
-    birdY += birdVelocity;
+    if (isGameStarted) {
+        birdVelocity += gravity;
+        birdY += birdVelocity;
+    };
 
     requestAnimationFrame(draw);
 };
@@ -186,3 +213,10 @@ function handleKeyDown(e) {
         birdJump();
     };
 };
+
+// START THE GAME
+document.addEventListener('click', () => {
+    if (!isGameStarted) {
+        isGameStarted = true;
+    };
+});
