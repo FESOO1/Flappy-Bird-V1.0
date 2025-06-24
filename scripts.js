@@ -67,16 +67,17 @@ function detectCollision() {
         const topY = -(-pipes[i].topPipe.y - pipeHeight);
         const bottomPipe = pipes[i].bottomPipe;
         const bottomY = pipes[i].bottomPipe.y - (birdHeight / 2);
-
         
         // TOP
         if (topPipe.x - birdWidth < birdX && topPipe.x + birdWidth > birdX && topY > birdY) {
+            jump = 0;
             baseMoveSpeed = 0;
             isGameStarted = false;
         };
         
         // BOTTOM
         if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + birdWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
+            jump = 0;
             baseMoveSpeed = 0;
             isGameStarted = false;
         };
@@ -204,6 +205,7 @@ draw();
 
 function birdJump() {
     birdVelocity = jump;
+    console.log(true);
 };
 
 // HANDLE KEYS
@@ -218,7 +220,7 @@ function handleKeyDown(e) {
 
 // START THE GAME
 document.addEventListener('click', () => {
-    if (!isGameStarted) {
+    if (!isGameStarted && !isJumpable) {
         isGameStarted = true;
         isJumpable = true;
     };
