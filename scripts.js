@@ -309,6 +309,7 @@ draw();
 
 function birdJump() {
     birdVelocity = jump;
+    handleSound('wing.wav');
 };
 
 // HANDLE SOUND
