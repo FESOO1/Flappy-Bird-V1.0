@@ -427,7 +427,7 @@ function changeTheTheme() {
         birdDownFlip = birdDownFlapImage;
         pipeTop = pipeTopImage;
         pipeBottom = pipeBottomImage;
-
+        
         isNightModeOn = false;
     };
 };
