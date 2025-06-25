@@ -54,8 +54,21 @@ const pipePositions = [
     },
 ];
 let randomPipePosition = randomPipeFnc();
-let pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY } }];
+let pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY }, point: 1, pointGained: false }];
 
+// POINTS
+let points = 0;
+let recordPoints = 0;
+
+// DRAW POINTS
+
+function drawPoints() {
+    ctx.beginPath();
+    ctx.font = '2rem "WDXL Lubrifont JP N", sans-serif';
+    ctx.fillStyle = 'white';
+    ctx.fillText(points, canvas.width / 2, 150);
+    ctx.closePath();
+};
 
 // RANDOM PIPE FUNCTION
 
@@ -74,23 +87,60 @@ function detectCollision() {
 
         // TOP
         if (topPipe.x - birdWidth < birdX && topPipe.x + pipeWidth > birdX && topY > birdY) {
+            if (isGameStarted) {
+                handleSound('hit.wav');
+                setTimeout(() => handleSound('die.wav'), 200);
+            };
             baseMoveSpeed = 0;
             isGameStarted = false;
             isGameOver = true;
-        };
 
+            if (points > recordPoints) {
+                recordPoints = points;
+            };
+            localStorage.setItem('recordPtLS', recordPoints);
+        };
+        
         // BOTTOM
         if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + pipeWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
+            if (isGameStarted) {
+                handleSound('hit.wav');
+                setTimeout(() => handleSound('die.wav'), 200);
+            };
             baseMoveSpeed = 0;
             isGameStarted = false;
             isGameOver = true;
-        };
 
+            if (points > recordPoints) {
+                recordPoints = points;
+            };
+            localStorage.setItem('recordPtLS', recordPoints);
+        };
+        
         // BASE
         if (birdY > visibleBaseY - birdHeight) {
+            if (isGameStarted) {
+                handleSound('hit.wav');
+                setTimeout(() => handleSound('die.wav'), 200);
+            };
             baseMoveSpeed = 0;
             isGameStarted = false;
             isGameOver = true;
+            
+            if (points > recordPoints) {
+                recordPoints = points;
+            };
+            localStorage.setItem('recordPtLS', recordPoints);
+        };
+
+        // GAIN POINT
+        if (birdX > topPipe.x) {
+            if (pipes[i].pointGained === false) {
+                handleSound('point.wav');
+            };
+            points += pipes[i].point;
+            pipes[i].pointGained = true;
+            pipes[i].point = 0;
         };
     };
 };
@@ -120,7 +170,7 @@ function drawPipes() {
             // ADDING A NEW PIPE
             if (pipes[i].bottomPipe.x === 250 && pipes[i].topPipe.x === 250) {
                 randomPipePosition = randomPipeFnc();
-                pipes.push({ topPipe: { x: canvas.width, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width, y: pipePositions[randomPipePosition].bottomY } });
+                pipes.push({ topPipe: { x: canvas.width, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width, y: pipePositions[randomPipePosition].bottomY }, point: 1, pointGained: false });
             };
 
             // REMOVING THE PIPES THAT ARE OUT OF VIEW
@@ -210,6 +260,20 @@ function drawGameOverMenu() {
     ctx.fillStyle = 'rgb(83 55 70)';
     ctx.fillText('CLICK ANYWHERE TO RESTART THE GAME!', gameOverMenuX + 50, gameOverMenuY + 120);
     ctx.closePath();
+
+    // POINTS
+    ctx.beginPath();
+    ctx.font = '1.8rem "WDXL Lubrifont JP N", sans-serif';
+    ctx.fillStyle = 'rgb(83 55 70)';
+    ctx.fillText(`POINTS: ${points}`, gameOverMenuX, canvas.height - 30);
+    ctx.closePath();
+
+    // RECORD POINTS
+    ctx.beginPath();
+    ctx.font = '1.8rem "WDXL Lubrifont JP N", sans-serif';
+    ctx.fillStyle = 'rgb(83 55 70)';
+    ctx.fillText(`RECORD POINTS: ${recordPoints}`, gameOverMenuX + 230, canvas.height - 30);
+    ctx.closePath();
 };
 
 // DRAW
@@ -222,6 +286,9 @@ function draw() {
     drawBird();
     detectCollision();
 
+    if (isGameStarted) {
+        drawPoints();
+    };
 
     if (isGameOver) {
         drawGameOverMenu();
@@ -247,9 +314,15 @@ function birdJump() {
 // HANDLE SOUND
 
 function handleSound(src) {
-    const audio = document.createElement('audio');
-    audio.src = `./assets/audio/${src}`;
-    audio.play();
+    let isPlaying = false;
+
+    if (isPlaying == false) {
+        const audio = document.createElement('audio');
+        audio.src = `./assets/audio/${src}`;
+        audio.play();
+
+        isPlaying = true;
+    };
 };
 
 // START THE GAME
@@ -271,12 +344,14 @@ function resettingEverything() {
     // BIRD    
     birdX = (canvas.width - birdWidth) / 2, birdY = (canvas.height - birdHeight) / 2;
     // PIPES
-    pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY } }];
+    pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY }, point: 1, pointGained: false }];
+    // POINTS
+    points = 0;
 };
 
 // HANDLE KEYS
 document.addEventListener('keydown', handleKeyDown);
-document.addEventListener('click', () => {
+canvas.addEventListener('click', () => {
     // RESTARTING THE GAME
     if (isGameOver) {
         resettingEverything();
@@ -292,6 +367,10 @@ document.addEventListener('click', () => {
 });
 
 function handleKeyDown(e) {
+    // RESTARTING THE GAME
+    if (isGameOver) {
+        resettingEverything();
+    };
     if (e.code === 'Space' && isGameOver === false) {
         birdJump();
     };
@@ -300,3 +379,15 @@ function handleKeyDown(e) {
         startTheGame();
     };
 };
+
+// UPDATE THE RECORD POINTS
+
+function updateTheRecordPoints() {
+    const recordPtLS = localStorage.getItem('recordPtLS');
+
+    if (recordPtLS) {
+        recordPoints = Number(recordPtLS);
+    };
+};
+
+updateTheRecordPoints();
