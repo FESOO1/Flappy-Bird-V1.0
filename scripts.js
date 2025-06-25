@@ -54,7 +54,7 @@ const pipePositions = [
     },
 ];
 let randomPipePosition = randomPipeFnc();
-const pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY } }];
+let pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY } }];
 
 
 // RANDOM PIPE FUNCTION
@@ -73,19 +73,19 @@ function detectCollision() {
         const bottomY = pipes[i].bottomPipe.y - (birdHeight / 2);
 
         // TOP
-        if (topPipe.x - birdWidth < birdX && topPipe.x + birdWidth > birdX && topY > birdY) {
+        if (topPipe.x - birdWidth < birdX && topPipe.x + pipeWidth > birdX && topY > birdY) {
             baseMoveSpeed = 0;
             isGameStarted = false;
             isGameOver = true;
         };
-        
+
         // BOTTOM
-        if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + birdWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
+        if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + pipeWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
             baseMoveSpeed = 0;
             isGameStarted = false;
             isGameOver = true;
         };
-        
+
         // BASE
         if (birdY > visibleBaseY - birdHeight) {
             baseMoveSpeed = 0;
@@ -252,9 +252,35 @@ function handleSound(src) {
     audio.play();
 };
 
+// START THE GAME
+
+function startTheGame() {
+    isGameStarted = true;
+    isJumpable = true;
+};
+
+// RESETTING EVERYTHING
+
+function resettingEverything() {
+    // GAME
+    isGameOver = false;
+    isJumpable = false;
+    // BASE
+    baseMoveSpeed = 1;
+    visibleBaseX = 0, invisibleBaseX = canvas.width;
+    // BIRD    
+    birdX = (canvas.width - birdWidth) / 2, birdY = (canvas.height - birdHeight) / 2;
+    // PIPES
+    pipes = [{ topPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width + 200, y: pipePositions[randomPipePosition].bottomY } }];
+};
+
 // HANDLE KEYS
 document.addEventListener('keydown', handleKeyDown);
 document.addEventListener('click', () => {
+    // RESTARTING THE GAME
+    if (isGameOver) {
+        resettingEverything();
+    };
     // STARTING THE GAME
     if (!isGameStarted && !isJumpable) {
         startTheGame();
@@ -273,11 +299,4 @@ function handleKeyDown(e) {
     if (!isGameStarted && !isJumpable) {
         startTheGame();
     };
-};
-
-// START THE GAME
-
-function startTheGame() {
-    isGameStarted = true;
-    isJumpable = true;
 };
