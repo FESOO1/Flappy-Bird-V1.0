@@ -3,6 +3,17 @@ const ctx = canvas.getContext('2d');
 canvas.setAttribute('width', '500px');
 canvas.setAttribute('height', '729px');
 
+// IMAGES
+let background = backgroundImage;
+let birdUpFlip = birdUpFlapImage;
+let birdMidFlip = birdMidFlapImage;
+let birdDownFlip = birdDownFlapImage;
+let pipeTop = pipeTopImage;
+let pipeBottom = pipeBottomImage;
+
+// NIGHT MODE
+let isNightModeOn = false;
+
 // GAME
 let isGameStarted = false;
 let isGameOver = false;
@@ -100,7 +111,7 @@ function detectCollision() {
             };
             localStorage.setItem('recordPtLS', recordPoints);
         };
-        
+
         // BOTTOM
         if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + pipeWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
             if (isGameStarted) {
@@ -116,7 +127,7 @@ function detectCollision() {
             };
             localStorage.setItem('recordPtLS', recordPoints);
         };
-        
+
         // BASE
         if (birdY > visibleBaseY - birdHeight) {
             if (isGameStarted) {
@@ -126,7 +137,7 @@ function detectCollision() {
             baseMoveSpeed = 0;
             isGameStarted = false;
             isGameOver = true;
-            
+
             if (points > recordPoints) {
                 recordPoints = points;
             };
@@ -154,12 +165,12 @@ function drawPipes() {
 
         // TOP PIPE
         ctx.beginPath();
-        ctx.drawImage(pipeTopImage, topPipe.x, topPipe.y, pipeWidth, pipeHeight);
+        ctx.drawImage(pipeTop, topPipe.x, topPipe.y, pipeWidth, pipeHeight);
         ctx.closePath();
 
         // BOTTOM PIPE
         ctx.beginPath();
-        ctx.drawImage(pipeBottomImage, bottomPipe.x, bottomPipe.y, pipeWidth, pipeHeight);
+        ctx.drawImage(pipeBottom, bottomPipe.x, bottomPipe.y, pipeWidth, pipeHeight);
         ctx.closePath();
 
         if (isGameStarted) {
@@ -186,11 +197,11 @@ function drawPipes() {
 function drawBird() {
     let birdImage = () => {
         if (birdImageState === 0) {
-            return birdUpFlapImage;
+            return birdUpFlip;
         } else if (birdImageState === 1) {
-            return birdMidFlapImage;
+            return birdMidFlip;
         } else if (birdImageState === 2) {
-            return birdDownFlapImage;
+            return birdDownFlip;
         };
     };
     ctx.beginPath();
@@ -216,7 +227,7 @@ function clearCanvas() {
 
 function drawBackground() {
     ctx.beginPath();
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     ctx.closePath();
 };
 
@@ -369,15 +380,19 @@ canvas.addEventListener('click', () => {
 
 function handleKeyDown(e) {
     // RESTARTING THE GAME
-    if (isGameOver) {
+    if (isGameOver && e.code === 'Space') {
         resettingEverything();
     };
     if (e.code === 'Space' && isGameOver === false) {
         birdJump();
     };
     // STARTING THE GAME
-    if (!isGameStarted && !isJumpable) {
+    if (!isGameStarted && !isJumpable && e.code === 'Space') {
         startTheGame();
+    };
+    // CHANGE THE THEME
+    if (e.key === 'd' && !isGameStarted) {
+        changeTheTheme();
     };
 };
 
@@ -392,3 +407,27 @@ function updateTheRecordPoints() {
 };
 
 updateTheRecordPoints();
+
+// CHANGE THE THEME
+
+function changeTheTheme() {
+    if (isNightModeOn === false) {
+        background = nightBackgroundImage;
+        birdUpFlip = blueBirdUpImage;
+        birdMidFlip = blueBirdMidImage;
+        birdDownFlip = blueBirdDownImage;
+        pipeTop = pipeRedTop;
+        pipeBottom = pipeRedDown;
+
+        isNightModeOn = true;
+    } else {
+        background = backgroundImage;
+        birdUpFlip = birdUpFlapImage;
+        birdMidFlip = birdMidFlapImage;
+        birdDownFlip = birdDownFlapImage;
+        pipeTop = pipeTopImage;
+        pipeBottom = pipeBottomImage;
+
+        isNightModeOn = false;
+    };
+};
