@@ -5,6 +5,11 @@ canvas.setAttribute('height', '729px');
 
 // GAME
 let isGameStarted = false;
+let isGameOver = false;
+
+// GAME OVER MENU
+let gameOverMenuWidth = canvas.width - 80, gameOverMenuHeight = 80;
+let gameOverMenuX = 40, gameOverMenuY = (canvas.height - gameOverMenuHeight) / 2;
 
 // BASE
 let baseWidth = canvas.width;
@@ -69,23 +74,23 @@ function detectCollision() {
 
         // TOP
         if (topPipe.x - birdWidth < birdX && topPipe.x + birdWidth > birdX && topY > birdY) {
-            jump = 0;
             baseMoveSpeed = 0;
             isGameStarted = false;
+            isGameOver = true;
         };
-
+        
         // BOTTOM
         if (bottomPipe.x - birdWidth < birdX && bottomPipe.x + birdWidth > birdX && bottomY < birdY + (birdHeight / 2)) {
-            jump = 0;
             baseMoveSpeed = 0;
             isGameStarted = false;
+            isGameOver = true;
         };
-
+        
         // BASE
         if (birdY > visibleBaseY - birdHeight) {
-            jump = 0;
             baseMoveSpeed = 0;
             isGameStarted = false;
+            isGameOver = true;
         };
     };
 };
@@ -116,6 +121,11 @@ function drawPipes() {
             if (pipes[i].bottomPipe.x === 250 && pipes[i].topPipe.x === 250) {
                 randomPipePosition = randomPipeFnc();
                 pipes.push({ topPipe: { x: canvas.width, y: pipePositions[randomPipePosition].topY }, bottomPipe: { x: canvas.width, y: pipePositions[randomPipePosition].bottomY } });
+            };
+
+            // REMOVING THE PIPES THAT ARE OUT OF VIEW
+            if (pipes[i].topPipe.x < -350) {
+                pipes.splice(i, 1);
             };
         };
     };
@@ -186,6 +196,22 @@ function drawBase() {
     };
 };
 
+// DRAW GAME OVER MENU
+
+function drawGameOverMenu() {
+    // GAME OVER IMAGE
+    ctx.beginPath();
+    ctx.drawImage(gameOverImage, gameOverMenuX, gameOverMenuY, gameOverMenuWidth, gameOverMenuHeight);
+    ctx.closePath();
+
+    // GAME OVER TEXT
+    ctx.beginPath();
+    ctx.font = '550 1.3rem "WDXL Lubrifont JP N", sans-serif';
+    ctx.fillStyle = 'rgb(83 55 70)';
+    ctx.fillText('CLICK ANYWHERE TO RESTART THE GAME!', gameOverMenuX + 50, gameOverMenuY + 120);
+    ctx.closePath();
+};
+
 // DRAW
 
 function draw() {
@@ -195,6 +221,11 @@ function draw() {
     drawBase();
     drawBird();
     detectCollision();
+
+
+    if (isGameOver) {
+        drawGameOverMenu();
+    };
 
     // BIRD ANIMATION
     if (isGameStarted || isJumpable) {
@@ -217,24 +248,36 @@ function birdJump() {
 
 function handleSound(src) {
     const audio = document.createElement('audio');
-    audio.src = src;
+    audio.src = `./assets/audio/${src}`;
     audio.play();
 };
 
 // HANDLE KEYS
 document.addEventListener('keydown', handleKeyDown);
-document.addEventListener('click', birdJump);
+document.addEventListener('click', () => {
+    // STARTING THE GAME
+    if (!isGameStarted && !isJumpable) {
+        startTheGame();
+    };
+    // JUMPING
+    if (isGameOver === false) {
+        birdJump();
+    };
+});
 
 function handleKeyDown(e) {
-    if (e.code === 'Space') {
+    if (e.code === 'Space' && isGameOver === false) {
         birdJump();
+    };
+    // STARTING THE GAME
+    if (!isGameStarted && !isJumpable) {
+        startTheGame();
     };
 };
 
 // START THE GAME
-document.addEventListener('click', () => {
-    if (!isGameStarted && !isJumpable) {
-        isGameStarted = true;
-        isJumpable = true;
-    };
-});
+
+function startTheGame() {
+    isGameStarted = true;
+    isJumpable = true;
+};
